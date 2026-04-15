@@ -8,6 +8,6 @@ LUCI_TITLE:=LuCI support for tumgrd
 LUCI_DEPENDS:=+luci-base +rpcd
 LUCI_PKGARCH:=all
 
-include ../../luci.mk
+include ../../feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
