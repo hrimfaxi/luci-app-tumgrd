@@ -1,0 +1,215 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+TUMGR="/usr/bin/tumgr"
+TMP_OUT="/tmp/tumgrd.rpc.out"
+TMP_ERR="/tmp/tumgrd.rpc.err"
+
+read_input() {
+	local data
+	data="$(cat)"
+	[ -n "$data" ] && json_load "$data"
+}
+
+reply_success_with_data() {
+	json_init
+	json_add_boolean success 1
+	json_add_string data "$1"
+	json_dump
+}
+
+reply_success_with_output() {
+	json_init
+	json_add_boolean success 1
+	json_add_string output "$1"
+	json_dump
+}
+
+reply_error() {
+	json_init
+	json_add_boolean success 0
+	json_add_int code "${1:-1}"
+	json_add_string error "${2:-unknown error}"
+	json_dump
+}
+
+cmd_status() {
+	"$TUMGR" status --json >"$TMP_OUT" 2>"$TMP_ERR"
+	local rc=$?
+
+	if [ $rc -eq 0 ]; then
+		reply_success_with_data "$(cat "$TMP_OUT")"
+	else
+		reply_error "$rc" "$(cat "$TMP_ERR" 2>/dev/null)"
+	fi
+}
+
+cmd_dump() {
+	"$TUMGR" dump >"$TMP_OUT" 2>"$TMP_ERR"
+	local rc=$?
+
+	if [ $rc -eq 0 ]; then
+		reply_success_with_data "$(cat "$TMP_OUT")"
+	else
+		reply_error "$rc" "$(cat "$TMP_ERR" 2>/dev/null)"
+	fi
+}
+
+cmd_register() {
+	read_input
+
+	local uid host sport cport psk memlimit description client_comment ip_check_url ip_version
+	json_get_var uid uid
+	json_get_var host server_host
+	json_get_var sport server_port
+	json_get_var cport client_port
+	json_get_var psk psk
+	json_get_var memlimit memlimit
+	json_get_var description description
+	json_get_var client_comment client_comment
+	json_get_var ip_check_url ip_check_url
+	json_get_var ip_version ip_version
+
+	set -- "$TUMGR" register -u "$uid" -H "$host" -S "$sport" -p "$cport" -k "$psk"
+
+	[ -n "$memlimit" ] && [ "$memlimit" != "0" ] && set -- "$@" -m "$memlimit"
+	[ -n "$description" ] && set -- "$@" -d "$description"
+	[ -n "$client_comment" ] && set -- "$@" --client-comment "$client_comment"
+	[ -n "$ip_check_url" ] && set -- "$@" --ip-check-url "$ip_check_url"
+	[ -n "$ip_version" ] && [ "$ip_version" != "auto" ] && set -- "$@" --ip-version "$ip_version"
+
+	"$@" >"$TMP_OUT" 2>"$TMP_ERR"
+	local rc=$?
+
+	if [ $rc -eq 0 ]; then
+		reply_success_with_output "$(cat "$TMP_OUT")"
+	else
+		reply_error "$rc" "$(cat "$TMP_ERR" 2>/dev/null)"
+	fi
+}
+
+cmd_deregister() {
+	read_input
+
+	local uid host cport
+	json_get_var uid uid
+	json_get_var host server_host
+	json_get_var cport client_port
+
+	"$TUMGR" deregister -u "$uid" -H "$host" -p "$cport" >"$TMP_OUT" 2>"$TMP_ERR"
+	local rc=$?
+
+	if [ $rc -eq 0 ]; then
+		reply_success_with_output "$(cat "$TMP_OUT")"
+	else
+		reply_error "$rc" "$(cat "$TMP_ERR" 2>/dev/null)"
+	fi
+}
+
+cmd_refresh() {
+	read_input
+
+	local uid host cport force
+	json_get_var uid uid
+	json_get_var host server_host
+	json_get_var cport client_port
+	json_get_var force force
+
+	if [ "$force" = "1" ] || [ "$force" = "true" ]; then
+		"$TUMGR" refresh -u "$uid" -H "$host" -p "$cport" --force >"$TMP_OUT" 2>"$TMP_ERR"
+	else
+		"$TUMGR" refresh -u "$uid" -H "$host" -p "$cport" >"$TMP_OUT" 2>"$TMP_ERR"
+	fi
+
+	local rc=$?
+
+	if [ $rc -eq 0 ]; then
+		reply_success_with_output "$(cat "$TMP_OUT")"
+	else
+		reply_error "$rc" "$(cat "$TMP_ERR" 2>/dev/null)"
+	fi
+}
+
+cmd_refresh_all() {
+	read_input
+
+	local force
+	json_get_var force force
+
+	if [ "$force" = "1" ] || [ "$force" = "true" ]; then
+		"$TUMGR" refresh --all --force >"$TMP_OUT" 2>"$TMP_ERR"
+	else
+		"$TUMGR" refresh --all >"$TMP_OUT" 2>"$TMP_ERR"
+	fi
+
+	local rc=$?
+
+	if [ $rc -eq 0 ]; then
+		reply_success_with_output "$(cat "$TMP_OUT")"
+	else
+		reply_error "$rc" "$(cat "$TMP_ERR" 2>/dev/null)"
+	fi
+}
+
+list() {
+	json_init
+
+	json_add_object "status"
+	json_close_object
+
+	json_add_object "dump"
+	json_close_object
+
+	json_add_object "register"
+	json_add_string "uid" "String"
+	json_add_string "server_host" "String"
+	json_add_string "server_port" "Integer"
+	json_add_string "client_port" "Integer"
+	json_add_string "psk" "String"
+	json_add_string "memlimit" "Integer"
+	json_add_string "description" "String"
+	json_add_string "client_comment" "String"
+	json_add_string "ip_check_url" "String"
+	json_add_string "ip_version" "String"
+	json_close_object
+
+	json_add_object "deregister"
+	json_add_string "uid" "String"
+	json_add_string "server_host" "String"
+	json_add_string "client_port" "Integer"
+	json_close_object
+
+	json_add_object "refresh"
+	json_add_string "uid" "String"
+	json_add_string "server_host" "String"
+	json_add_string "client_port" "Integer"
+	json_add_string "force" "Boolean"
+	json_close_object
+
+	json_add_object "refresh_all"
+	json_add_string "force" "Boolean"
+	json_close_object
+
+	json_dump
+}
+
+case "$1" in
+	list)
+		list
+		;;
+	call)
+		case "$2" in
+			status) cmd_status ;;
+			dump) cmd_dump ;;
+			register) cmd_register ;;
+			deregister) cmd_deregister ;;
+			refresh) cmd_refresh ;;
+			refresh_all) cmd_refresh_all ;;
+			*) exit 1 ;;
+		esac
+		;;
+	*)
+		exit 1
+		;;
+esac
