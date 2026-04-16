@@ -3,39 +3,28 @@
 'require rpc';
 'require ui';
 
-var callStatus = rpc.declare({
-	object: 'tumgrd',
-	method: 'status',
-	params: [],
-	expect: { nodes: [] }
-});
-
 var callDump = rpc.declare({
 	object: 'tumgrd',
 	method: 'dump',
-	params: [],
-	expect: { nodes: [] }
+	params: []
 });
 
 var callRegister = rpc.declare({
 	object: 'tumgrd',
 	method: 'register',
-	params: [ 'uid', 'server_host', 'server_port', 'client_port', 'psk', 'memlimit', 'description', 'client_comment', 'ip_check_url', 'ip_version' ],
-	expect: { code: 0, message: '' }
+	params: [ 'uid', 'server_host', 'server_port', 'client_port', 'psk', 'description', 'client_comment', 'memlimit', 'ip_check_url', 'ip_version' ]
 });
 
 var callDeregister = rpc.declare({
 	object: 'tumgrd',
 	method: 'deregister',
-	params: [ 'uid', 'server_host', 'server_port' ],
-	expect: { code: 0, message: '' }
+	params: [ 'uid', 'server_host', 'server_port' ]
 });
 
 var callRefresh = rpc.declare({
 	object: 'tumgrd',
 	method: 'refresh',
-	params: [ 'uid', 'server_host', 'server_port', 'force', 'all' ],
-	expect: { code: 0, message: '' }
+	params: [ 'uid', 'server_host', 'server_port', 'force', 'all' ]
 });
 
 function parseRows(res) {
@@ -48,68 +37,45 @@ function parseRows(res) {
 	if (Array.isArray(res.nodes))
 		return res.nodes;
 
-	if (Array.isArray(res.data))
+	if (res.result && Array.isArray(res.result))
+		return res.result;
+
+	if (res.result && Array.isArray(res.result.nodes))
+		return res.result.nodes;
+
+	if (res.data && Array.isArray(res.data))
 		return res.data;
+
+	if (res.data && Array.isArray(res.data.nodes))
+		return res.data.nodes;
+
+	if (res[0] && Array.isArray(res[0].nodes))
+		return res[0].nodes;
 
 	return [];
 }
 
 function assertUbusOk(res, fallback) {
-	if (!res)
-		throw new Error(fallback || 'operation failed');
-
-	if (res.code === undefined || res.code === 0)
+	if (res == null)
 		return res;
 
-	throw new Error(res.message || res.error || fallback || 'operation failed');
-}
+	if (res.code === 0)
+		return res;
 
-function copyObject(src) {
-	var out = {};
-	var k;
+	if (res.status === 'ok')
+		return res;
 
-	if (!src)
-		return out;
+	if (res.success === true)
+		return res;
 
-	for (k in src)
-		out[k] = src[k];
+	if (typeof res.error === 'string' && res.error)
+		throw new Error(res.error);
 
-	return out;
-}
+	if (typeof res.message === 'string' && res.message &&
+	    res.status !== 'ok' && res.code !== undefined && res.code !== 0)
+		throw new Error(res.message);
 
-function nodeKey(n) {
-	return String(n.uid || '') + '\x1f' +
-		String(n.server_host || '') + '\x1f' +
-		String(n.server_port || '');
-}
-
-function mergeRows(statusRows, dumpRows) {
-	var map = {};
-	var rows = [];
-	var i, k, row, key;
-
-	for (i = 0; i < dumpRows.length; i++) {
-		row = copyObject(dumpRows[i]);
-		key = nodeKey(row);
-		map[key] = row;
-		rows.push(row);
-	}
-
-	for (i = 0; i < statusRows.length; i++) {
-		row = statusRows[i];
-		key = nodeKey(row);
-
-		if (map[key]) {
-			for (k in row)
-				map[key][k] = row[k];
-		}
-		else {
-			map[key] = copyObject(row);
-			rows.push(map[key]);
-		}
-	}
-
-	return rows;
+	return res;
 }
 
 function fmtTime(ts) {
@@ -219,7 +185,7 @@ function renderTable(ctx, rows) {
 			E('td', { 'class': 'td' }, n.ip_version || ''),
 			E('td', { 'class': 'td' }, n.current_ip || ''),
 			E('td', { 'class': 'td' }, fmtTime(n.last_updated)),
-			E('td', { 'class': 'td' }, n.status || ''),
+			E('td', { 'class': 'td' }, n.node_status || n.status || ''),
 			actionCell
 		]));
 	});
@@ -229,10 +195,14 @@ function renderTable(ctx, rows) {
 
 return view.extend({
 	load: function() {
-		return Promise.all([
-			callStatus(),
-			callDump()
-		]);
+		return callDump().then(function(res) {
+			console.log('tumgrd dump raw:', res);
+			return res;
+		}).catch(function(err) {
+			console.error('tumgrd dump failed:', err);
+			ui.addNotification(null, E('p', String(err)), 'error');
+			return {};
+		});
 	},
 
 	handleRegister: function(ev) {
@@ -261,34 +231,40 @@ return view.extend({
 			sport,
 			cport,
 			psk,
-			memlimit,
 			description || '',
 			clientComment || '',
+			memlimit,
 			ipCheckUrl || '',
 			ipVersion || 'auto'
 		).then(function(res) {
+			console.log('tumgrd register raw:', res);
 			assertUbusOk(res, 'register failed');
 			ui.addNotification(null, E('p', _('Register success')));
 			reloadSoon();
 		}).catch(function(err) {
+			console.error('tumgrd register failed:', err);
 			ui.addNotification(null, E('p', String(err)), 'error');
 		});
 	},
 
 	handleRefreshAll: function(force) {
 		return callRefresh('', '', 0, !!force, true).then(function(res) {
+			console.log('tumgrd refresh all raw:', res);
 			assertUbusOk(res, 'refresh all failed');
 			ui.addNotification(null, E('p', force ? _('Force refresh all success') : _('Refresh all success')));
 			reloadSoon();
 		}).catch(function(err) {
+			console.error('tumgrd refresh all failed:', err);
 			ui.addNotification(null, E('p', String(err)), 'error');
 		});
 	},
 
 	render: function(data) {
-		var statusRows = parseRows(data[0]);
-		var dumpRows = parseRows(data[1]);
-		var rows = mergeRows(statusRows, dumpRows);
+		console.log('tumgrd render data:', data);
+
+		var rows = parseRows(data);
+
+		console.log('tumgrd parsed rows:', rows);
 
 		return E('div', {}, [
 			E('div', {
