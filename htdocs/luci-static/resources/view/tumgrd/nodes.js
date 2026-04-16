@@ -27,14 +27,14 @@ var callRegister = rpc.declare({
 var callDeregister = rpc.declare({
 	object: 'tumgrd',
 	method: 'deregister',
-	params: [ 'uid', 'server_host', 'client_port' ],
+	params: [ 'uid', 'server_host', 'server_port' ],
 	expect: {}
 });
 
 var callRefresh = rpc.declare({
 	object: 'tumgrd',
 	method: 'refresh',
-	params: [ 'uid', 'server_host', 'client_port', 'force' ],
+	params: [ 'uid', 'server_host', 'server_port', 'force' ],
 	expect: {}
 });
 
@@ -74,7 +74,7 @@ function copyObject(src) {
 function nodeKey(n) {
 	return String(n.uid || '') + '\x1f' +
 		String(n.server_host || '') + '\x1f' +
-		String(n.client_port || '');
+		String(n.server_port || '');
 }
 
 function mergeRows(statusRows, dumpRows) {
@@ -173,7 +173,7 @@ function renderTable(ctx, rows) {
 			E('button', {
 				'class': 'btn cbi-button cbi-button-action',
 				'click': ui.createHandlerFn(ctx, function() {
-					return callRefresh(n.uid, n.server_host, n.client_port, false).then(function(res) {
+					return callRefresh(n.uid, n.server_host, n.server_port, false).then(function(res) {
 						if (!res || res.success !== true)
 							throw new Error((res && res.error) || 'refresh failed');
 
@@ -191,7 +191,7 @@ function renderTable(ctx, rows) {
 					if (!confirm(_('Are you sure to deregister this node?')))
 						return;
 
-					return callDeregister(n.uid, n.server_host, n.client_port).then(function(res) {
+					return callDeregister(n.uid, n.server_host, n.server_port).then(function(res) {
 						if (!res || res.success !== true)
 							throw new Error((res && res.error) || 'deregister failed');
 

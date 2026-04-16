@@ -92,12 +92,12 @@ cmd_register() {
 cmd_deregister() {
 	read_input
 
-	local uid host cport
+	local uid host sport
 	json_get_var uid uid
 	json_get_var host server_host
-	json_get_var cport client_port
+	json_get_var sport server_port
 
-	"$TUMGR" deregister -u "$uid" -H "$host" -p "$cport" >"$TMP_OUT" 2>"$TMP_ERR"
+	"$TUMGR" deregister -u "$uid" -H "$host" -p "$sport" >"$TMP_OUT" 2>"$TMP_ERR"
 	local rc=$?
 
 	if [ $rc -eq 0 ]; then
@@ -110,16 +110,16 @@ cmd_deregister() {
 cmd_refresh() {
 	read_input
 
-	local uid host cport force
+	local uid host sport force
 	json_get_var uid uid
 	json_get_var host server_host
-	json_get_var cport client_port
+	json_get_var sport server_port
 	json_get_var force force
 
 	if [ "$force" = "1" ] || [ "$force" = "true" ]; then
-		"$TUMGR" refresh -u "$uid" -H "$host" -p "$cport" --force >"$TMP_OUT" 2>"$TMP_ERR"
+		"$TUMGR" refresh -u "$uid" -H "$host" -p "$sport" --force >"$TMP_OUT" 2>"$TMP_ERR"
 	else
-		"$TUMGR" refresh -u "$uid" -H "$host" -p "$cport" >"$TMP_OUT" 2>"$TMP_ERR"
+		"$TUMGR" refresh -u "$uid" -H "$host" -p "$sport" >"$TMP_OUT" 2>"$TMP_ERR"
 	fi
 
 	local rc=$?
@@ -177,13 +177,13 @@ list() {
 	json_add_object "deregister"
 	json_add_string "uid" "String"
 	json_add_string "server_host" "String"
-	json_add_string "client_port" "Integer"
+	json_add_string "server_port" "Integer"
 	json_close_object
 
 	json_add_object "refresh"
 	json_add_string "uid" "String"
 	json_add_string "server_host" "String"
-	json_add_string "client_port" "Integer"
+	json_add_string "server_port" "Integer"
 	json_add_string "force" "Boolean"
 	json_close_object
 
