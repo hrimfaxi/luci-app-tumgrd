@@ -7,55 +7,61 @@ var callStatus = rpc.declare({
 	object: 'tumgrd',
 	method: 'status',
 	params: [],
-	expect: {}
+	expect: { nodes: [] }
 });
 
 var callDump = rpc.declare({
 	object: 'tumgrd',
 	method: 'dump',
 	params: [],
-	expect: {}
+	expect: { nodes: [] }
 });
 
 var callRegister = rpc.declare({
 	object: 'tumgrd',
 	method: 'register',
 	params: [ 'uid', 'server_host', 'server_port', 'client_port', 'psk', 'memlimit', 'description', 'client_comment', 'ip_check_url', 'ip_version' ],
-	expect: {}
+	expect: { code: 0, message: '' }
 });
 
 var callDeregister = rpc.declare({
 	object: 'tumgrd',
 	method: 'deregister',
 	params: [ 'uid', 'server_host', 'server_port' ],
-	expect: {}
+	expect: { code: 0, message: '' }
 });
 
 var callRefresh = rpc.declare({
 	object: 'tumgrd',
 	method: 'refresh',
-	params: [ 'uid', 'server_host', 'server_port', 'force' ],
-	expect: {}
+	params: [ 'uid', 'server_host', 'server_port', 'force', 'all' ],
+	expect: { code: 0, message: '' }
 });
 
-var callRefreshAll = rpc.declare({
-	object: 'tumgrd',
-	method: 'refresh_all',
-	params: [ 'force' ],
-	expect: {}
-});
-
-function parseEmbeddedJSON(res) {
-	if (!res || res.success !== true || !res.data)
+function parseRows(res) {
+	if (!res)
 		return [];
 
-	try {
-		var data = JSON.parse(res.data);
-		return Array.isArray(data) ? data : [];
-	}
-	catch (e) {
-		return [];
-	}
+	if (Array.isArray(res))
+		return res;
+
+	if (Array.isArray(res.nodes))
+		return res.nodes;
+
+	if (Array.isArray(res.data))
+		return res.data;
+
+	return [];
+}
+
+function assertUbusOk(res, fallback) {
+	if (!res)
+		throw new Error(fallback || 'operation failed');
+
+	if (res.code === undefined || res.code === 0)
+		return res;
+
+	throw new Error(res.message || res.error || fallback || 'operation failed');
 }
 
 function copyObject(src) {
@@ -173,10 +179,8 @@ function renderTable(ctx, rows) {
 			E('button', {
 				'class': 'btn cbi-button cbi-button-action',
 				'click': ui.createHandlerFn(ctx, function() {
-					return callRefresh(n.uid, n.server_host, n.server_port, false).then(function(res) {
-						if (!res || res.success !== true)
-							throw new Error((res && res.error) || 'refresh failed');
-
+					return callRefresh(n.uid, n.server_host, n.server_port, false, false).then(function(res) {
+						assertUbusOk(res, 'refresh failed');
 						ui.addNotification(null, E('p', _('Refresh success')));
 						reloadSoon();
 					}).catch(function(err) {
@@ -192,9 +196,7 @@ function renderTable(ctx, rows) {
 						return;
 
 					return callDeregister(n.uid, n.server_host, n.server_port).then(function(res) {
-						if (!res || res.success !== true)
-							throw new Error((res && res.error) || 'deregister failed');
-
+						assertUbusOk(res, 'deregister failed');
 						ui.addNotification(null, E('p', _('Deregister success')));
 						reloadSoon();
 					}).catch(function(err) {
@@ -265,9 +267,7 @@ return view.extend({
 			ipCheckUrl || '',
 			ipVersion || 'auto'
 		).then(function(res) {
-			if (!res || res.success !== true)
-				throw new Error((res && res.error) || 'register failed');
-
+			assertUbusOk(res, 'register failed');
 			ui.addNotification(null, E('p', _('Register success')));
 			reloadSoon();
 		}).catch(function(err) {
@@ -276,10 +276,8 @@ return view.extend({
 	},
 
 	handleRefreshAll: function(force) {
-		return callRefreshAll(force).then(function(res) {
-			if (!res || res.success !== true)
-				throw new Error((res && res.error) || 'refresh all failed');
-
+		return callRefresh('', '', 0, !!force, true).then(function(res) {
+			assertUbusOk(res, 'refresh all failed');
 			ui.addNotification(null, E('p', force ? _('Force refresh all success') : _('Refresh all success')));
 			reloadSoon();
 		}).catch(function(err) {
@@ -288,8 +286,8 @@ return view.extend({
 	},
 
 	render: function(data) {
-		var statusRows = parseEmbeddedJSON(data[0]);
-		var dumpRows = parseEmbeddedJSON(data[1]);
+		var statusRows = parseRows(data[0]);
+		var dumpRows = parseRows(data[1]);
 		var rows = mergeRows(statusRows, dumpRows);
 
 		return E('div', {}, [
