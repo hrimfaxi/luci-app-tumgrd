@@ -145,7 +145,7 @@ function renderTable(ctx, rows) {
 			E('button', {
 				'class': 'btn cbi-button cbi-button-action',
 				'click': ui.createHandlerFn(ctx, function() {
-					return callRefresh(n.uid, n.server_host, n.server_port, false, false).then(function(res) {
+					return callRefresh(n.uid, n.server_host, n.server_port, true, false).then(function(res) {
 						assertUbusOk(res, 'refresh failed');
 						ui.addNotification(null, E('p', _('Refresh success')));
 						reloadSoon();
@@ -153,7 +153,7 @@ function renderTable(ctx, rows) {
 						ui.addNotification(null, E('p', String(err)), 'error');
 					});
 				})
-			}, _('Refresh')),
+			}, _('Force Refresh')),
 			' ',
 			E('button', {
 				'class': 'btn cbi-button cbi-button-negative',
