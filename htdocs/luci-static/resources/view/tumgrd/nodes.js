@@ -18,13 +18,13 @@ var callRegister = rpc.declare({
 var callDeregister = rpc.declare({
 	object: 'tumgrd',
 	method: 'deregister',
-	params: [ 'uid', 'server_host', 'server_port' ]
+	params: [ 'uid', 'server_host', 'server_port', 'ip_version' ]
 });
 
 var callRefresh = rpc.declare({
 	object: 'tumgrd',
 	method: 'refresh',
-	params: [ 'uid', 'server_host', 'server_port', 'force', 'all' ]
+	params: [ 'uid', 'server_host', 'server_port', 'ip_version', 'force', 'all' ]
 });
 
 function parseRows(res) {
@@ -145,7 +145,7 @@ function renderTable(ctx, rows) {
 			E('button', {
 				'class': 'btn cbi-button cbi-button-action',
 				'click': ui.createHandlerFn(ctx, function() {
-					return callRefresh(n.uid, n.server_host, n.server_port, true, false).then(function(res) {
+					return callRefresh(n.uid, n.server_host, n.server_port, n.ip_version, true, false).then(function(res) {
 						assertUbusOk(res, 'refresh failed');
 						ui.addNotification(null, E('p', _('Refresh success')));
 						reloadSoon();
@@ -161,7 +161,7 @@ function renderTable(ctx, rows) {
 					if (!confirm(_('Are you sure to deregister this node?')))
 						return;
 
-					return callDeregister(n.uid, n.server_host, n.server_port).then(function(res) {
+					return callDeregister(n.uid, n.server_host, n.server_port, n.ip_version).then(function(res) {
 						assertUbusOk(res, 'deregister failed');
 						ui.addNotification(null, E('p', _('Deregister success')));
 						reloadSoon();
