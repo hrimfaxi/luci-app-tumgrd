@@ -1,8 +1,6 @@
 config tumgrd 'main'
 	option enabled '1'
-	option socket '/var/run/tumgrd.sock'
 	option database '/lib/tumgrd/tumgrd.db'
 	option interval '60'
 	option client_bin '/usr/bin/tuctl_client'
-	option log_format 'text'
 	option log_level 'info'
