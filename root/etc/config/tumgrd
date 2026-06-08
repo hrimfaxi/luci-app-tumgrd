@@ -1,6 +1,0 @@
-config tumgrd 'main'
-	option enabled '1'
-	option database '/lib/tumgrd/tumgrd.db'
-	option interval '60'
-	option log_level 'info'
-	option enable_xor '1'
