@@ -2,7 +2,6 @@
 'require form';
 'require uci';
 'require view';
-'require tools.widgets as widgets';
 
 return view.extend({
 	load: function() {
