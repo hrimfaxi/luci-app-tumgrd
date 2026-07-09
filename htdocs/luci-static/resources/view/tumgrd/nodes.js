@@ -52,6 +52,13 @@ function injectStyles() {
 		'  text-align: right; margin-top: 1em; display: flex;',
 		'  justify-content: flex-end; gap: 0.5em;',
 		'}',
+		'.tumgrd-status {',
+		'  display: inline-block; padding: 0.15em 0.6em; border-radius: 3px;',
+		'  font-size: 0.85em; font-weight: 500;',
+		'}',
+		'.tumgrd-status-active { background: #dcfce7; color: #166534; }',
+		'.tumgrd-status-error  { background: #fee2e2; color: #991b1b; }',
+		'.tumgrd-status-other  { background: #f3f4f6; color: #4b5563; }',
 	].join('\n');
 	var el = document.createElement('style');
 	el.id = 'tumgrd-custom-style';
@@ -122,6 +129,16 @@ function fmtTime(ts) {
 	} catch (e) {
 		return String(ts);
 	}
+}
+
+function renderStatusCell(status) {
+	var text = status || '';
+	var cls = 'tumgrd-status tumgrd-status-other';
+	if (text === 'active') cls = 'tumgrd-status tumgrd-status-active';
+	else if (text === 'error') cls = 'tumgrd-status tumgrd-status-error';
+	return E('td', { 'class': 'td' }, [
+		text ? E('span', { 'class': cls }, text) : ''
+	]);
 }
 
 function reloadSoon() {
@@ -465,7 +482,7 @@ function renderTable(ctx, rows) {
 			E('td', { 'class': 'td' }, n.ip_version || ''),
 			E('td', { 'class': 'td' }, n.current_ip || ''),
 			E('td', { 'class': 'td' }, fmtTime(n.last_updated)),
-			E('td', { 'class': 'td' }, n.node_status || n.status || ''),
+			renderStatusCell(n.node_status || n.status),
 			actionCell
 		]));
 	});
