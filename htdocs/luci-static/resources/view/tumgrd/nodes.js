@@ -3,6 +3,62 @@
 'require rpc';
 'require ui';
 
+// === 样式注入 ===
+
+function injectStyles() {
+	if (document.getElementById('tumgrd-custom-style')) return;
+	var css = [
+		'.tumgrd-toolbar {',
+		'  display: flex; justify-content: space-between; align-items: center;',
+		'  gap: 1em; flex-wrap: wrap; margin-bottom: 1em;',
+		'}',
+		'.tumgrd-toolbar h2 { margin: 0; }',
+		'.tumgrd-btn-group { display: flex; gap: 0.35em; flex-wrap: nowrap; }',
+		'.tumgrd-btn-primary, .tumgrd-btn-secondary, .tumgrd-btn-danger {',
+		'  padding: 0.4em 1em; border-radius: 4px; font-size: 0.9em;',
+		'  cursor: pointer; border: 1px solid transparent; transition: all 0.15s;',
+		'  white-space: nowrap;',
+		'}',
+		'.tumgrd-btn-primary {',
+		'  background: #3b82f6; color: #fff; border-color: #3b82f6;',
+		'}',
+		'.tumgrd-btn-primary:hover { background: #2563eb; border-color: #2563eb; }',
+		'.tumgrd-btn-secondary {',
+		'  background: #fff; color: #374151; border-color: #d1d5db;',
+		'}',
+		'.tumgrd-btn-secondary:hover { background: #f3f4f6; border-color: #9ca3af; }',
+		'.tumgrd-btn-danger {',
+		'  background: #fff; color: #dc2626; border-color: #fca5a5;',
+		'}',
+		'.tumgrd-btn-danger:hover { background: #fef2f2; border-color: #f87171; }',
+		'.tumgrd-btn-sm {',
+		'  padding: 0.25em 0.65em; font-size: 0.8em; border-radius: 3px;',
+		'  cursor: pointer; border: 1px solid transparent; transition: all 0.15s;',
+		'  white-space: nowrap;',
+		'}',
+		'.tumgrd-btn-sm.tumgrd-btn-primary { background: #3b82f6; color: #fff; }',
+		'.tumgrd-btn-sm.tumgrd-btn-primary:hover { background: #2563eb; }',
+		'.tumgrd-btn-sm.tumgrd-btn-secondary { background: #f9fafb; color: #374151; border-color: #e5e7eb; }',
+		'.tumgrd-btn-sm.tumgrd-btn-secondary:hover { background: #f3f4f6; border-color: #d1d5db; }',
+		'.tumgrd-btn-sm.tumgrd-btn-danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }',
+		'.tumgrd-btn-sm.tumgrd-btn-danger:hover { background: #fee2e2; border-color: #fca5a5; }',
+		'.tumgrd-btn-link {',
+		'  background: none; border: none; color: #3b82f6; cursor: pointer;',
+		'  padding: 0; font-size: 0.85em; text-decoration: underline;',
+		'  text-decoration-style: dotted; transition: color 0.15s;',
+		'}',
+		'.tumgrd-btn-link:hover { color: #1d4ed8; text-decoration-style: solid; }',
+		'.tumgrd-modal-actions {',
+		'  text-align: right; margin-top: 1em; display: flex;',
+		'  justify-content: flex-end; gap: 0.5em;',
+		'}',
+	].join('\n');
+	var el = document.createElement('style');
+	el.id = 'tumgrd-custom-style';
+	el.textContent = css;
+	document.head.appendChild(el);
+}
+
 // === RPC 声明 ===
 
 var callDump = rpc.declare({
@@ -105,7 +161,7 @@ function renderPSKCell(psk) {
 	var visible = false;
 	var textNode = E('span', {}, '********');
 	var btn = E('button', {
-		'class': 'btn cbi-button cbi-button-action',
+		'class': 'tumgrd-btn-link',
 		'style': 'margin-left: .5em;',
 		'click': function(ev) {
 			ev.preventDefault();
@@ -188,8 +244,8 @@ function buildNodeForm(defaults) {
 						'rows': 3
 					}, defaults.xor || ''),
 					E('button', {
-						'class': 'btn cbi-button cbi-button-action',
-						'style': 'white-space: nowrap;',
+						'class': 'tumgrd-btn-sm tumgrd-btn-secondary',
+						'style': 'white-space: nowrap; align-self: flex-end;',
 						'click': function(ev) {
 							ev.preventDefault();
 							var ta = document.getElementById('modal_xor');
@@ -306,14 +362,13 @@ function showRegisterModal(ctx, defaultValues) {
 
 	ui.showModal(_(isEdit ? 'Edit Node' : 'Register Node'), [
 		buildNodeForm(defaults),
-		E('div', { 'class': 'right', 'style': 'margin-top: 1em;' }, [
+		E('div', { 'class': 'tumgrd-modal-actions' }, [
 			E('button', {
-				'class': 'btn cbi-button cbi-button-reset',
+				'class': 'tumgrd-btn-secondary',
 				'click': function() { ui.hideModal(); }
 			}, _('Cancel')),
-			' ',
 			E('button', {
-				'class': 'btn cbi-button cbi-button-apply',
+				'class': 'tumgrd-btn-primary',
 				'click': ui.createHandlerFn(ctx, function() {
 					submitNodeForm(ctx, isEdit, defaults);
 				})
@@ -368,34 +423,34 @@ function renderTable(ctx, rows) {
 		var xorDisplay = n.xor && n.xor.length > 0 ? _('Yes') : _('No');
 
 		var actionCell = E('td', { 'class': 'td' }, [
-			E('button', {
-				'class': 'btn cbi-button cbi-button-action',
-				'title': _('Force Refresh'),
-				'click': ui.createHandlerFn(ctx, function() {
-					return handleResult(
-						callRefresh(n.uid, n.server_host, n.server_port, n.ip_version, true, false),
-						'Refresh success'
-					);
-				})
-			}, _('Refresh')),
-			' ',
-			E('button', {
-				'class': 'btn cbi-button cbi-button-edit',
-				'title': _('Edit Node'),
-				'click': ui.createHandlerFn(ctx, function() { showEditModal(ctx, n); })
-			}, _('Edit')),
-			' ',
-			E('button', {
-				'class': 'btn cbi-button cbi-button-negative',
-				'title': _('Deregister Node'),
-				'click': ui.createHandlerFn(ctx, function() {
-					if (!confirm(_('Are you sure to deregister this node?'))) return;
-					return handleResult(
-						callDeregister(n.uid, n.server_host, n.server_port, n.ip_version),
-						'Deregister success'
-					);
-				})
-			}, _('Deregister'))
+			E('div', { 'class': 'tumgrd-btn-group' }, [
+				E('button', {
+					'class': 'tumgrd-btn-sm tumgrd-btn-primary',
+					'title': _('Force Refresh'),
+					'click': ui.createHandlerFn(ctx, function() {
+						return handleResult(
+							callRefresh(n.uid, n.server_host, n.server_port, n.ip_version, true, false),
+							'Refresh success'
+						);
+					})
+				}, _('Refresh')),
+				E('button', {
+					'class': 'tumgrd-btn-sm tumgrd-btn-secondary',
+					'title': _('Edit Node'),
+					'click': ui.createHandlerFn(ctx, function() { showEditModal(ctx, n); })
+				}, _('Edit')),
+				E('button', {
+					'class': 'tumgrd-btn-sm tumgrd-btn-danger',
+					'title': _('Deregister Node'),
+					'click': ui.createHandlerFn(ctx, function() {
+						if (!confirm(_('Are you sure to deregister this node?'))) return;
+						return handleResult(
+							callDeregister(n.uid, n.server_host, n.server_port, n.ip_version),
+							'Deregister success'
+						);
+					})
+				}, _('Deregister'))
+			])
 		]);
 
 		table.appendChild(E('tr', { 'class': 'tr' }, [
@@ -422,11 +477,7 @@ function renderTable(ctx, rows) {
 
 return view.extend({
 	load: function() {
-		return callDump().then(function(res) {
-			console.log('tumgrd dump raw:', res);
-			return res;
-		}).catch(function(err) {
-			console.error('tumgrd dump failed:', err);
+		return callDump().catch(function(err) {
 			ui.addNotification(null, E('p', String(err)), 'error');
 			return {};
 		});
@@ -440,32 +491,28 @@ return view.extend({
 	},
 
 	render: function(data) {
-		console.log('tumgrd render data:', data);
+		injectStyles();
+
 		var rows = parseRows(data);
-		console.log('tumgrd parsed rows:', rows);
 
 		return E('div', {}, [
-			E('div', {
-				'style': 'display:flex; justify-content:space-between; align-items:center; gap:1em; flex-wrap:wrap;'
-			}, [
-				E('h2', { 'style': 'margin:0;' }, _('Tumgrd Nodes')),
-				E('div', {}, [
+			E('div', { 'class': 'tumgrd-toolbar' }, [
+				E('h2', {}, _('Tumgrd Nodes')),
+				E('div', { 'class': 'tumgrd-btn-group' }, [
 					E('button', {
-						'class': 'btn cbi-button cbi-button-add',
+						'class': 'tumgrd-btn-primary',
 						'click': ui.createHandlerFn(this, function() {
 							showRegisterModal(this);
 						})
 					}, _('Register Node')),
-					' ',
 					E('button', {
-						'class': 'btn cbi-button cbi-button-action',
+						'class': 'tumgrd-btn-secondary',
 						'click': ui.createHandlerFn(this, function() {
 							return this.handleRefreshAll(false);
 						})
 					}, _('Refresh All')),
-					' ',
 					E('button', {
-						'class': 'btn cbi-button cbi-button-action important',
+						'class': 'tumgrd-btn-danger',
 						'click': ui.createHandlerFn(this, function() {
 							return this.handleRefreshAll(true);
 						})
