@@ -43,9 +43,10 @@ function injectStyles() {
 		'.tumgrd-btn-sm.tumgrd-btn-danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }',
 		'.tumgrd-btn-sm.tumgrd-btn-danger:hover { background: #fee2e2; border-color: #fca5a5; }',
 		'.tumgrd-btn-link {',
-		'  background: none; border: none; color: #3b82f6; cursor: pointer;',
-		'  padding: 0; font-size: 0.85em; text-decoration: underline;',
-		'  text-decoration-style: dotted; transition: color 0.15s;',
+		'  display: inline; background: none; border: none; color: #3b82f6;',
+		'  cursor: pointer; padding: 0; font-size: 0.85em;',
+		'  text-decoration: underline; text-decoration-style: dotted;',
+		'  transition: color 0.15s;',
 		'}',
 		'.tumgrd-btn-link:hover { color: #1d4ed8; text-decoration-style: solid; }',
 		'.tumgrd-modal-actions {',
@@ -176,8 +177,8 @@ function handleResult(promise, successMsg) {
 function renderPSKCell(psk) {
 	if (!psk) return E('td', { 'class': 'td' }, '');
 	var visible = false;
-	var textNode = E('span', {}, '********');
-	var btn = E('button', {
+	var textNode = E('span', { 'style': 'font-family: monospace;' }, '********');
+	var btn = E('span', {
 		'class': 'tumgrd-btn-link',
 		'style': 'margin-left: .5em;',
 		'click': function(ev) {
