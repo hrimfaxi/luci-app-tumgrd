@@ -180,7 +180,7 @@ function renderPSKCell(psk) {
 	var textNode = E('span', { 'style': 'font-family: monospace;' }, '********');
 	var btn = E('span', {
 		'class': 'tumgrd-btn-link',
-		'style': 'margin-left: .5em;',
+		'style': 'margin-left: .5em; font-family: monospace;',
 		'click': function(ev) {
 			ev.preventDefault();
 			visible = !visible;
