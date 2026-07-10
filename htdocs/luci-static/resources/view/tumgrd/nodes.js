@@ -132,12 +132,12 @@ function fmtTime(ts) {
 }
 
 function renderStatusCell(status) {
-	var text = status || '';
+	var text = String(status || '');
 	var cls = 'tumgrd-status tumgrd-status-other';
 	if (text === 'active') cls = 'tumgrd-status tumgrd-status-active';
 	else if (text === 'error') cls = 'tumgrd-status tumgrd-status-error';
 	return E('td', { 'class': 'td' }, [
-		text ? E('span', { 'class': cls }, text) : ''
+		text ? E('span', { 'class': cls }, [text]) : ''
 	]);
 }
 
@@ -163,11 +163,11 @@ function handleResult(promise, successMsg) {
 	return promise.then(function(res) {
 		assertUbusOk(res);
 		if (successMsg) {
-			ui.addNotification(null, E('p', _(successMsg)));
+			ui.addNotification(null, E('p', [_(successMsg)]));
 		}
 		reloadSoon();
 	}).catch(function(err) {
-		ui.addNotification(null, E('p', String(err)), 'error');
+		ui.addNotification(null, E('p', [String(err)]), 'error');
 	});
 }
 
@@ -351,7 +351,7 @@ function submitNodeForm(ctx, isEdit, defaults) {
 	var v = readNodeFormValues();
 
 	if (!v.uid || !v.host || isNaN(v.sport) || isNaN(v.cport) || !v.psk) {
-		ui.addNotification(null, E('p', _('Required fields are missing')), 'error');
+		ui.addNotification(null, E('p', [_('Required fields are missing')]), 'error');
 		return;
 	}
 
@@ -471,17 +471,17 @@ function renderTable(ctx, rows) {
 		]);
 
 		table.appendChild(E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td' }, n.uid || ''),
-			E('td', { 'class': 'td' }, n.server_host || ''),
-			E('td', { 'class': 'td' }, String(n.server_port || '')),
-			E('td', { 'class': 'td' }, String(n.client_port || '')),
+			E('td', { 'class': 'td' }, [n.uid || '']),
+			E('td', { 'class': 'td' }, [n.server_host || '']),
+			E('td', { 'class': 'td' }, [String(n.server_port || '')]),
+			E('td', { 'class': 'td' }, [String(n.client_port || '')]),
 			renderPSKCell(n.psk),
-			E('td', { 'class': 'td' }, xorDisplay),
-			E('td', { 'class': 'td' }, String(n.memlimit || '')),
-			E('td', { 'class': 'td' }, n.description || ''),
-			E('td', { 'class': 'td' }, n.ip_version || ''),
-			E('td', { 'class': 'td' }, n.current_ip || ''),
-			E('td', { 'class': 'td' }, fmtTime(n.last_updated)),
+			E('td', { 'class': 'td' }, [xorDisplay]),
+			E('td', { 'class': 'td' }, [String(n.memlimit || '')]),
+			E('td', { 'class': 'td' }, [n.description || '']),
+			E('td', { 'class': 'td' }, [n.ip_version || '']),
+			E('td', { 'class': 'td' }, [n.current_ip || '']),
+			E('td', { 'class': 'td' }, [fmtTime(n.last_updated)]),
 			renderStatusCell(n.node_status || n.status),
 			actionCell
 		]));
@@ -495,7 +495,7 @@ function renderTable(ctx, rows) {
 return view.extend({
 	load: function() {
 		return callDump().catch(function(err) {
-			ui.addNotification(null, E('p', String(err)), 'error');
+			ui.addNotification(null, E('p', [String(err)]), 'error');
 			return {};
 		});
 	},
