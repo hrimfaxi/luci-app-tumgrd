@@ -1,10 +1,10 @@
 # luci-app-tumgrd
 
-OpenWrt 路由器上的 [tumgrd](https://github.com/hrimfaxi/openwrt-tumgrd) 种子管理守护进程 LuCI Web 管理界面。
+OpenWrt 路由器上的 [tumgrd](https://github.com/hrimfaxi/openwrt-tumgrd) tutuicmptunnel 节点管理守护进程 LuCI Web 管理界面。
 
 ## 功能特性
 
-- 注册 / 编辑 / 删除种子节点
+- 注册 / 编辑 / 删除 tutuicmptunnel 节点
 - 查看节点状态、当前 IP 和最后更新时间
 - 刷新单个节点或一键刷新全部节点
 - 通过 UCI 配置守护进程参数（监听地址、端口、日志等）
@@ -32,4 +32,4 @@ make package/luci-app-tumgrd/compile
 
 ## 许可证
 
-GPL-2.0
+GPL-3.0
