@@ -55,7 +55,7 @@ function injectStyles() {
 		'}',
 		'.tumgrd-status {',
 		'  display: inline-block; padding: 0.15em 0.6em; border-radius: 3px;',
-		'  font-size: 0.85em; font-weight: 500;',
+		'  font-size: 0.85em; font-weight: 500; white-space: nowrap;',
 		'}',
 		'.tumgrd-status-active { background: #dcfce7; color: #166534; }',
 		'.tumgrd-status-error  { background: #fee2e2; color: #991b1b; }',
