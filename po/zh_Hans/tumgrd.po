@@ -104,6 +104,12 @@ msgstr "更新时间"
 msgid "Status"
 msgstr "状态"
 
+msgid "Active"
+msgstr "活跃"
+
+msgid "Error"
+msgstr "错误"
+
 msgid "Actions"
 msgstr "操作"
 

@@ -135,10 +135,11 @@ function fmtTime(ts) {
 function renderStatusCell(status) {
 	var text = String(status || '');
 	var cls = 'tumgrd-status tumgrd-status-other';
-	if (text === 'active') cls = 'tumgrd-status tumgrd-status-active';
-	else if (text === 'error') cls = 'tumgrd-status tumgrd-status-error';
+	var label = text;
+	if (text === 'active') { cls = 'tumgrd-status tumgrd-status-active'; label = _('Active'); }
+	else if (text === 'error') { cls = 'tumgrd-status tumgrd-status-error'; label = _('Error'); }
 	return E('td', { 'class': 'td' }, [
-		text ? E('span', { 'class': cls }, [text]) : ''
+		text ? E('span', { 'class': cls }, [label]) : ''
 	]);
 }
 
