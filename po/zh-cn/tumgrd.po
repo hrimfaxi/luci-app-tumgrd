@@ -1,0 +1,208 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: luci-app-tumgrd\n"
+"PO-Revision-Date: 2025-01-01 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# === nodes.js ===
+
+msgid "Show"
+msgstr "显示"
+
+msgid "Hide"
+msgstr "隐藏"
+
+msgid "UID"
+msgstr "用户ID"
+
+msgid "Server Host"
+msgstr "服务器地址"
+
+msgid "Server Port"
+msgstr "服务器端口"
+
+msgid "Client Port"
+msgstr "客户端端口"
+
+msgid "PSK"
+msgstr "预共享密钥"
+
+msgid "XOR Key (hex)"
+msgstr "XOR 密钥（十六进制）"
+
+msgid "hex string, up to 64 bytes (128 hex chars)"
+msgstr "十六进制字符串，最多64字节（128个十六进制字符）"
+
+msgid "Generate"
+msgstr "生成"
+
+msgid "Memlimit (KB)"
+msgstr "内存限制（KB）"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Client Comment"
+msgstr "客户端备注"
+
+msgid "IP Check URL"
+msgstr "IP检查地址"
+
+msgid "IP Version"
+msgstr "IP版本"
+
+msgid "auto"
+msgstr "自动"
+
+msgid "ipv4"
+msgstr "IPv4"
+
+msgid "ipv6"
+msgstr "IPv6"
+
+msgid "Required fields are missing"
+msgstr "必填字段缺失"
+
+msgid "Node updated successfully"
+msgstr "节点更新成功"
+
+msgid "Node registered successfully"
+msgstr "节点注册成功"
+
+msgid "Edit Node"
+msgstr "编辑节点"
+
+msgid "Register Node"
+msgstr "注册节点"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Register"
+msgstr "注册"
+
+msgid "XOR"
+msgstr "XOR"
+
+msgid "Memlimit"
+msgstr "内存限制"
+
+msgid "Current IP"
+msgstr "当前IP"
+
+msgid "Updated"
+msgstr "更新时间"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "否"
+
+msgid "Force Refresh"
+msgstr "强制刷新"
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Deregister Node"
+msgstr "注销节点"
+
+msgid "Deregister"
+msgstr "注销"
+
+msgid "Are you sure to deregister this node?"
+msgstr "确定要注销此节点吗？"
+
+msgid "Deregister success"
+msgstr "注销成功"
+
+msgid "Tumgrd Nodes"
+msgstr "Tumgrd 节点管理"
+
+msgid "Refresh All"
+msgstr "刷新全部"
+
+msgid "Force Refresh All"
+msgstr "强制刷新全部"
+
+msgid "Nodes"
+msgstr "节点列表"
+
+msgid "No nodes found"
+msgstr "未找到节点"
+
+msgid "Refresh success"
+msgstr "刷新成功"
+
+# === config.js ===
+
+msgid "Tumgrd"
+msgstr "Tumgrd"
+
+msgid "Configure tumgrd daemon options."
+msgstr "配置 tumgrd 守护进程选项。"
+
+msgid "Main Settings"
+msgstr "基本设置"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Socket path"
+msgstr "Socket 路径"
+
+msgid "Database path"
+msgstr "数据库路径"
+
+msgid "Monitor interval (seconds)"
+msgstr "监控间隔（秒）"
+
+msgid "tuctl_client path"
+msgstr "tuctl_client 路径"
+
+msgid "Log format"
+msgstr "日志格式"
+
+msgid "text"
+msgstr "文本"
+
+msgid "json"
+msgstr "JSON"
+
+msgid "Log level"
+msgstr "日志级别"
+
+msgid "debug"
+msgstr "调试"
+
+msgid "info"
+msgstr "信息"
+
+msgid "warn"
+msgstr "警告"
+
+msgid "error"
+msgstr "错误"
+
+# === menu.d ===
+
+msgid "Configuration"
+msgstr "配置"
